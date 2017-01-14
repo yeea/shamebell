@@ -1,0 +1,13 @@
+*.iml
+gradle.properties
+local.properties
+.idea/modules.xml
+.idea/tasks.xml
+.idea/workspace.xml
+.idea/libraries
+.idea/datasources.xml
+.idea/vcs.xml
+.gradle/
+**/build/
+captures/
+Thumbs.db
