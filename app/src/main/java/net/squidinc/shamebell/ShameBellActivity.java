@@ -2,17 +2,22 @@ package net.squidinc.shamebell;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.io.IOException;
+
 public class ShameBellActivity extends AppCompatActivity {
 
+  private static final String TAG = "ShameBellActivity";
   private SensorManager mSensorManager;
   private Sensor mAccelerometer;
   private ShakeDetector mShakeDetector;
@@ -34,7 +39,28 @@ public class ShameBellActivity extends AppCompatActivity {
       @Override
       public void onClick( View v ) {
         // Shame!
-        mpShame.start();
+        mpShame.setVolume( 0.5f, 0.5f );
+        if ( !mpShame.isPlaying() ) {
+          mpShame.start();
+        } else {
+          mpShame.stop();
+          mpShame.reset();
+          AssetFileDescriptor afd = getApplicationContext().getResources().openRawResourceFd( R.raw.shame );
+          if ( afd == null ) {
+            return;
+          }
+          try {
+            mpShame.setDataSource( afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength() );
+            afd.close();
+            mpShame.prepare();
+            mpShame.start();
+          } catch ( IOException e ) {
+            e.printStackTrace();
+            Log.w( TAG, "Couldn't shame: " + e.getMessage() );
+          }
+
+          // TODO cross-fade option
+        }
       }
     } );
 
@@ -46,6 +72,7 @@ public class ShameBellActivity extends AppCompatActivity {
 
       @Override
       public void onShake( int count ) {
+        mpDing.setVolume( 0.5f, 0.5f );
         mpDing.start();
       }
     } );
